@@ -6,15 +6,16 @@
 
 ## 📑 Sumário
 
-1. [Persona](#1-️-persona)
-2. [História do Usuário](#2-️-história-do-usuário)
-3. [Escopo](#3-️-escopo)
-4. [Priorização MoSCoW](#4-️-priorização-moscow)
-5. [Resumo Visual](#5-️-resumo-visual)
-6. [Próximos Passos](#6-️-próximos-passos)
+1. [Persona](#persona)
+2. [História do Usuário](#historia)
+3. [Escopo](#escopo)
+4. [Priorização MoSCoW](#moscow)
+5. [Resumo Visual](#resumo)
+6. [Próximos Passos](#proximos)
 
 ---
 
+<a id="persona"></a>
 ## 1. 👤 Persona
 
 **Nome:** Mariana Souza
@@ -45,6 +46,7 @@
 
 ---
 
+<a id="historia"></a>
 ## 2. 📖 História do Usuário
 
 > **Como** Mariana (pessoa com múltiplos contextos de vida),
@@ -62,6 +64,7 @@
 
 ---
 
+<a id="escopo"></a>
 ## 3. 🎯 Escopo
 
 ### ✅ Dentro do escopo
@@ -91,6 +94,7 @@
 
 ---
 
+<a id="moscow"></a>
 ## 4. 🎯 Priorização MoSCoW
 
 > Regra de ouro: **Must** deve caber em ~60% do esforço; o resto se distribui.
@@ -142,6 +146,7 @@
 
 ---
 
+<a id="resumo"></a>
 ## 5. 📊 Resumo Visual
 
 ```
@@ -163,6 +168,7 @@ WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não a
 
 ---
 
+<a id="proximos"></a>
 ## 6. 🧭 Próximos Passos
 
 ### Caminho de construção sugerido
