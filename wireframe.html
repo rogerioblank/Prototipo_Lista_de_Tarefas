@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Wireframe — Controle de Tarefas Diárias</title>
+</head>
+<body>
+
+  <!-- ===== CABEÇALHO ===== -->
+  <header>
+    <h1>📋 Minhas Tarefas de Hoje</h1>
+    <p>Seg, 20 out 2026</p>
+  </header>
+
+  <hr>
+
+  <!-- ===== ZONA DE ADICIONAR TAREFA ===== -->
+  <section>
+    <h2>Adicionar tarefa</h2>
+    <input type="text" placeholder="O que preciso fazer hoje?">
+    <button>+ Adicionar</button>
+
+    <p>Área:</p>
+    <button>Trabalho</button>
+    <button>Casa</button>
+    <button>Comunidade</button>
+    <button>Pessoal</button>
+  </section>
+
+  <hr>
+
+  <!-- ===== PROGRESSO ===== -->
+  <section>
+    <h2>Progresso</h2>
+    <p>3 de 7 concluídas</p>
+    <progress value="3" max="7"></progress>
+  </section>
+
+  <hr>
+
+  <!-- ===== FILTRO ===== -->
+  <section>
+    <h2>Filtro</h2>
+    <button>Todas</button>
+    <button>Trabalho</button>
+    <button>Casa</button>
+    <button>Comunidade</button>
+    <button>Pessoal</button>
+  </section>
+
+  <hr>
+
+  <!-- ===== LISTA DE TAREFAS ===== -->
+  <section>
+    <h2>Tarefas do dia</h2>
+    <ul>
+      <li>
+        <input type="checkbox">
+        <span>Enviar relatório mensal</span>
+        <span>[Trabalho]</span>
+        <button>🗑️</button>
+      </li>
+      <li>
+        <input type="checkbox">
+        <span>Ligar para o síndico</span>
+        <span>[Casa]</span>
+        <button>🗑️</button>
+      </li>
+      <li>
+        <input type="checkbox">
+        <span>Comprar leite e pão</span>
+        <span>[Casa]</span>
+        <button>🗑️</button>
+      </li>
+      <li>
+        <input type="checkbox">
+        <span>Confirmar presença na reunião da ONG</span>
+        <span>[Comunidade]</span>
+        <button>🗑️</button>
+      </li>
+      <li>
+        <input type="checkbox">
+        <span>Marcar consulta dentista</span>
+        <span>[Pessoal]</span>
+        <button>🗑️</button>
+      </li>
+      <li>
+        <input type="checkbox" checked>
+        <span><s>Pagar conta de luz</s></span>
+        <span>[Casa]</span>
+        <button>🗑️</button>
+      </li>
+      <li>
+        <input type="checkbox" checked>
+        <span><s>Responder e-mail do cliente</s></span>
+        <span>[Trabalho]</span>
+        <button>🗑️</button>
+      </li>
+    </ul>
+  </section>
+
+</body>
+</html>
