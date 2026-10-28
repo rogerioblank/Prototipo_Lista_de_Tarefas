@@ -10,6 +10,8 @@
     task && typeof task.id === "string" &&
     typeof task.title === "string" && task.title.trim().length > 0 &&
     AREAS.includes(task.area) && typeof task.completed === "boolean" &&
+    (task.scheduledAt === undefined || task.scheduledAt === null ||
+      (typeof task.scheduledAt === "string" && Number.isFinite(Date.parse(task.scheduledAt)))) &&
     (task.completedAt === undefined || task.completedAt === null ||
       (typeof task.completedAt === "string" && Number.isFinite(Date.parse(task.completedAt))));
 
@@ -40,8 +42,9 @@
   function formatCompletionDate(value) {
     if (!value) return "Data e hora não registradas";
     return new Intl.DateTimeFormat("pt-BR", {
-      dateStyle: "short",
-      timeStyle: "short"
+      dateStyle: "long",
+      timeStyle: "short",
+      hourCycle: "h23"
     }).format(new Date(value));
   }
 
@@ -199,7 +202,9 @@
       const time = document.createElement("time");
       time.className = "completed-time";
       if (task.completedAt) time.dateTime = task.completedAt;
-      time.textContent = `${task.area} · ${formatCompletionDate(task.completedAt)}`;
+      const completionText = `Concluída em ${formatCompletionDate(task.completedAt)}`;
+      const scheduleText = task.scheduledAt ? `Programada para ${formatCompletionDate(task.scheduledAt)} · ` : "";
+      time.textContent = `${task.area} · ${scheduleText}${completionText}`;
       const area = document.createElement("span");
       area.className = "area-tag";
       area.dataset.area = task.area;

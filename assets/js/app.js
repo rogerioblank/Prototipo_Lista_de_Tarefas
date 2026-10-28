@@ -4,6 +4,8 @@
       const form = document.getElementById("task-form");
       const titleInput = document.getElementById("task-title");
       const areaInput = document.getElementById("task-area");
+      const scheduleDateInput = document.getElementById("task-schedule-date");
+      const scheduleTimeInput = document.getElementById("task-schedule-time");
       const taskList = document.getElementById("task-list");
       const emptyState = document.getElementById("empty-state");
       const notice = document.getElementById("notice");
@@ -11,12 +13,73 @@
       let activeFilter = "Todas";
       let tasks = [];
 
+      function getEarliestScheduleTime() {
+        const earliest = new Date();
+        earliest.setSeconds(0, 0);
+        earliest.setMinutes(earliest.getMinutes() + 1);
+        return earliest;
+      }
+
+      function parseScheduleDate(value) {
+        const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+        if (!match) return null;
+        const [, day, month, year] = match;
+        const date = new Date(Number(year), Number(month) - 1, Number(day));
+        if (date.getFullYear() !== Number(year) || date.getMonth() !== Number(month) - 1 || date.getDate() !== Number(day)) {
+          return null;
+        }
+        return date;
+      }
+
+      function updateScheduleMinimum() {
+        const earliest = getEarliestScheduleTime();
+        const dateValue = scheduleDateInput.value.trim();
+        const timeValue = scheduleTimeInput.value.trim();
+        scheduleDateInput.setCustomValidity("");
+        scheduleTimeInput.setCustomValidity("");
+        if (!dateValue && !timeValue) return null;
+        if (!dateValue) {
+          scheduleDateInput.setCustomValidity("Informe a data no formato dia/mês/ano.");
+          return null;
+        }
+        const date = parseScheduleDate(dateValue);
+        if (!date) {
+          scheduleDateInput.setCustomValidity("Informe uma data válida no formato dd/mm/aaaa.");
+          return null;
+        }
+        if (!timeValue) {
+          scheduleTimeInput.setCustomValidity("Informe o horário no formato 24 horas.");
+          return null;
+        }
+        const timeMatch = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(timeValue);
+        if (!timeMatch) {
+          scheduleTimeInput.setCustomValidity("Informe um horário válido no formato HH:mm.");
+          return null;
+        }
+        date.setHours(Number(timeMatch[1]), Number(timeMatch[2]), 0, 0);
+        if (date < earliest) {
+          scheduleDateInput.setCustomValidity("Escolha uma data e horário futuros.");
+          return null;
+        }
+        return date;
+      }
+
       const isValidTask = (task) =>
         task && typeof task.id === "string" &&
         typeof task.title === "string" && task.title.trim().length > 0 &&
         AREAS.includes(task.area) && typeof task.completed === "boolean" &&
+        (task.scheduledAt === undefined || task.scheduledAt === null ||
+          (typeof task.scheduledAt === "string" && Number.isFinite(Date.parse(task.scheduledAt)))) &&
         (task.completedAt === undefined || task.completedAt === null ||
           (typeof task.completedAt === "string" && Number.isFinite(Date.parse(task.completedAt))));
+
+      function formatDateTime(value) {
+        return new Intl.DateTimeFormat("pt-BR", {
+          dateStyle: "long",
+          timeStyle: "short",
+          hourCycle: "h23"
+        }).format(new Date(value));
+      }
 
       function showNotice(message, kind = "") {
         notice.textContent = message;
@@ -64,7 +127,13 @@
         );
 
         taskList.replaceChildren();
-        const visibleTasks = tasks.filter((task) => activeFilter === "Todas" || task.area === activeFilter);
+        const visibleTasks = tasks
+          .filter((task) => activeFilter === "Todas" || task.area === activeFilter)
+          .sort((a, b) => {
+            if (!a.scheduledAt) return b.scheduledAt ? 1 : 0;
+            if (!b.scheduledAt) return -1;
+            return new Date(a.scheduledAt) - new Date(b.scheduledAt);
+          });
         for (const task of visibleTasks) {
           const row = document.createElement("li");
           row.className = `task-row${task.completed ? " is-complete" : ""}`;
@@ -85,6 +154,17 @@
           title.className = "task-title";
           title.textContent = task.title;
 
+          const taskInfo = document.createElement("div");
+          taskInfo.className = "task-info";
+          taskInfo.append(title);
+          if (task.scheduledAt) {
+            const schedule = document.createElement("time");
+            schedule.className = "task-schedule";
+            schedule.dateTime = task.scheduledAt;
+            schedule.textContent = `Programada para ${formatDateTime(task.scheduledAt)}`;
+            taskInfo.append(schedule);
+          }
+
           const area = document.createElement("span");
           area.className = "area-tag";
           area.dataset.area = task.area;
@@ -101,7 +181,7 @@
             render();
           });
 
-          row.append(checkbox, title, area, remove);
+          row.append(checkbox, taskInfo, area, remove);
           taskList.append(row);
         }
 
@@ -122,10 +202,16 @@
 
       form.addEventListener("submit", (event) => {
         event.preventDefault();
+        const scheduledAt = updateScheduleMinimum();
         const title = titleInput.value.trim();
         if (!title) {
           showNotice("Escreva o nome da tarefa antes de adicionar.", "error");
           titleInput.focus();
+          return;
+        }
+        if (!form.reportValidity()) {
+          showNotice("Escolha uma data e horário futuros para programar a tarefa.", "error");
+          (scheduleDateInput.validationMessage ? scheduleDateInput : scheduleTimeInput).focus();
           return;
         }
         tasks.unshift({
@@ -134,6 +220,7 @@
             : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
           title,
           area: areaInput.value,
+          scheduledAt: scheduledAt ? scheduledAt.toISOString() : null,
           completed: false
         });
         saveTasks();
@@ -151,6 +238,12 @@
         }
         render();
       });
+
+      scheduleDateInput.addEventListener("input", updateScheduleMinimum);
+      scheduleTimeInput.addEventListener("input", updateScheduleMinimum);
+      window.addEventListener("focus", updateScheduleMinimum);
+      window.addEventListener("pageshow", updateScheduleMinimum);
+      window.setInterval(updateScheduleMinimum, 30_000);
 
       const today = new Date();
       const dateElement = document.getElementById("today-date");

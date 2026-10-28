@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f7f8f4">
-  <title>Minhas tarefas de hoje</title>
+  <title>Minhas tarefas | Meu dia</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
@@ -22,8 +22,8 @@
     <section class="page-heading" aria-labelledby="page-title">
       <div>
         <p class="eyebrow">Um passo de cada vez</p>
-        <h1 id="page-title">Minhas tarefas de hoje</h1>
-        <p class="subtitle">Organize o seu dia e celebre cada pequena conquista.</p>
+        <h1 id="page-title">Minhas tarefas</h1>
+        <p class="subtitle">Organize seu dia, programe o que vem pela frente e celebre cada conquista.</p>
       </div>
       <time class="date-chip" id="today-date"></time>
     </section>
@@ -44,7 +44,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>
         </span>
         <div class="stat-copy">
-          <p class="stat-label">Progresso de hoje</p>
+          <p class="stat-label">Progresso</p>
           <div class="progress-summary-row">
             <p class="stat-value" id="progress-count">0 de 0 concluídas</p>
             <a class="details-button" href="pages/details.html">Ver detalhes</a>
@@ -62,15 +62,27 @@
         <span class="section-hint">O que você quer tirar da cabeça?</span>
       </div>
       <form class="task-form" id="task-form">
-        <label hidden for="task-title">Nome da tarefa</label>
-        <input class="field" id="task-title" name="title" type="text" maxlength="120" placeholder="Ex.: Enviar relatório mensal" autocomplete="off" required>
-        <label hidden for="task-area">Área da tarefa</label>
-        <select class="field" id="task-area" name="area">
-          <option value="Trabalho">💼 Trabalho</option>
-          <option value="Casa">🏡 Casa</option>
-          <option value="Comunidade">💜 Comunidade</option>
-          <option value="Pessoal">🌿 Pessoal</option>
-        </select>
+        <label class="form-field task-name-field" for="task-title">
+          <span>Tarefa</span>
+          <input class="field" id="task-title" name="title" type="text" maxlength="120" placeholder="Ex.: Enviar relatório mensal" autocomplete="off" required>
+        </label>
+        <label class="form-field" for="task-area">
+          <span>Área</span>
+          <select class="field" id="task-area" name="area">
+            <option value="Trabalho">💼 Trabalho</option>
+            <option value="Casa">🏡 Casa</option>
+            <option value="Comunidade">💜 Comunidade</option>
+            <option value="Pessoal">🌿 Pessoal</option>
+          </select>
+        </label>
+        <label class="form-field schedule-field" for="task-schedule-date">
+          <span>Data e horário <span class="optional-label">(opcional)</span></span>
+          <span class="schedule-fields">
+            <input class="field" id="task-schedule-date" name="scheduleDate" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" aria-label="Data do agendamento (dia/mês/ano)" aria-describedby="schedule-help">
+            <input class="field" id="task-schedule-time" name="scheduleTime" type="text" inputmode="numeric" placeholder="HH:mm" maxlength="5" autocomplete="off" aria-label="Horário do agendamento (24 horas)">
+          </span>
+          <span class="field-help" id="schedule-help">Formato: dia/mês/ano e 24 horas. Agende apenas para o futuro.</span>
+        </label>
         <button class="add-button" type="submit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           Adicionar
@@ -82,10 +94,10 @@
     <section class="panel list-panel" aria-labelledby="list-heading">
       <div class="section-heading list-heading">
         <div class="list-title-wrap">
-          <h2 id="list-heading">Lista do dia</h2>
+          <h2 id="list-heading">Lista de tarefas</h2>
           <span class="task-count" id="visible-count">0</span>
         </div>
-        <span class="section-hint">Marque uma tarefa quando terminar</span>
+        <span class="section-hint">Tarefas programadas e para hoje</span>
       </div>
       <nav class="filters" id="filters" aria-label="Filtrar tarefas">
         <button class="filter-button" type="button" data-filter="Todas" aria-pressed="true">Todas</button>

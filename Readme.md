@@ -60,7 +60,7 @@
 - ✅ **CA3 – Concluir:** marcar tarefa como feita (some da lista ativa ou fica riscada).
 - ✅ **CA4 – Filtrar:** filtrar por área (Trabalho / Casa / Comunidade / Pessoal).
 
-> **Só isso.** Sem prioridade, sem recorrência, sem data futura na V1.
+> Sem prioridade ou recorrência na V1. O agendamento de data e horário é opcional.
 
 ---
 
@@ -72,14 +72,15 @@
 | O que | Como |
 |---|---|
 | **Criar tarefa** | Título + área (4 fixas) |
-| **Listar** | Lista única do dia |
+| **Agendar** | Data e horário opcionais, no formato `dd/mm/aaaa` e `HH:mm` |
+| **Listar** | Lista única, incluindo tarefas agendadas |
 | **Concluir** | Marcar como feita (riscada ou some) |
 | **Filtrar** | Por área (opcional, um clique) |
 | **Persistir** | Salvar no navegador (LocalStorage) |
 
 ### 🚫 Fora do escopo (nem pensar agora)
 
-- Prioridade, prazos, recorrência
+- Prioridade, recorrência
 - Notificações, login, nuvem
 - Subtarefas, anexos, histórico
 - Multiusuário, gamificação
@@ -89,7 +90,7 @@
 
 - **4 áreas fixas:** Trabalho, Casa, Comunidade, Pessoal.
 - **Tarefa concluída** = riscada (ou escondida — você decide).
-- **Sem datas:** é sempre "hoje".
+- **Agendamento:** opcional; tarefas com data e horário aparecem na lista ordenadas pelo horário programado.
 - **Sem login:** dados no próprio navegador.
 
 ---
@@ -109,6 +110,7 @@
 | M4 | **4 áreas fixas** (Trabalho, Casa, Comunidade, Pessoal) | A separação por contexto é parte da dor da persona. |
 | M5 | **Persistência local** (LocalStorage) | Sem salvar, a lista some ao fechar — inutilizável. |
 | M6 | **Excluir tarefa** | Erro de digitação ou tarefa cancelada precisa sair da lista. |
+| M7 | **Agendar tarefa** (data e horário opcionais) | Ajuda a organizar tarefas para outro dia sem perder a visão da lista. |
 
 > ✅ M1–M6 formam o **MVP**. Se tudo isso funcionar, o produto já resolve a dor.
 
@@ -127,7 +129,6 @@
 |---|---|---|
 | C1 | **Prioridade** (Alta/Média/Baixa) | Ajuda a decidir ordem, mas a persona já filtra por área. |
 | C2 | **Recorrência** (diária/semanal) | Bom para tarefas repetitivas, mas adiciona complexidade. |
-| C3 | **Data futura** (agendar para outro dia) | Sai do conceito "hoje" da V1. |
 | C4 | **Áreas customizáveis** | As 4 fixas cobrem 90% dos casos. |
 | C5 | **Tema claro/escuro** | Conforto, não necessidade. |
 
@@ -150,9 +151,9 @@
 ## 5. 📊 Resumo Visual
 
 ```
-MUST     ████████████████  (6 itens)  ← MVP
+MUST     ██████████████████  (7 itens)  ← MVP
 SHOULD   ████████          (4 itens)  ← V1.1
-COULD    ██████            (5 itens)  ← se sobrar
+COULD    █████             (4 itens)  ← se sobrar
 WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não agora
 ```
 
@@ -160,9 +161,9 @@ WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não a
 
 | Categoria | Itens |
 |---|---|
-| Must Have | 6 |
+| Must Have | 7 |
 | Should Have | 4 |
-| Could Have | 5 |
+| Could Have | 4 |
 | Won't Have | 8 |
 | **Total** | **23** |
 
@@ -173,7 +174,7 @@ WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não a
 
 ### Caminho de construção sugerido
 
-1. **Sprint 1 (MVP):** M1 → M2 → M3 → M4 → M5 → M6
+1. **Sprint 1 (MVP):** M1 → M2 → M3 → M4 → M5 → M6 → M7
 2. **Sprint 2:** S1 → S2 → S3 → S4
 3. **Reavaliar** se C1–C5 valem a pena depois de usar o MVP por alguns dias.
 
