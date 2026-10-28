@@ -179,7 +179,7 @@ WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não a
 
 ### Decisões pendentes
 
-- [ ] **Stack tecnológica** — HTML/JS puro? React? Python?
+- [x] **Stack tecnológica** — HTML, CSS e JavaScript puro.
 - [ ] **Modelo de dados** — o que guardar de cada tarefa.
 - [ ] **Wireframe** — layout da tela única.
 - [ ] **Comportamento ao concluir** — riscar ou esconder?
@@ -191,3 +191,22 @@ WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não a
 3. Escolher stack e iniciar Sprint 1 (MVP).
 
 ---
+
+## 7. Estrutura atual do projeto
+
+O front-end usa HTML, CSS e JavaScript puro, sem dependências ou etapa de compilação. Os arquivos estão organizados assim:
+
+```text
+index.html
+pages/
+└── details.html
+assets/
+├── css/
+│   ├── details.css
+│   └── styles.css
+└── js/
+    ├── app.js
+    └── details.js
+```
+
+Para executar, abra `index.html` em um navegador. A página inicial permite gerenciar as tarefas; o link **Ver detalhes** abre `pages/details.html`, com histórico, filtros de período e categoria e gráficos. As tarefas são armazenadas no `localStorage` do próprio navegador.
