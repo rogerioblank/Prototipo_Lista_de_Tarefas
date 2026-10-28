@@ -1,0 +1,12 @@
+front end navegável 
+estruturar
+transformar
+
+
+
+convenção
+todo projeto web se resume a paginas componentes e rotas
+
+pagina inicial -> pagina de detalhes
+
+com ia construir a pagina inicial e após criar a paginação
