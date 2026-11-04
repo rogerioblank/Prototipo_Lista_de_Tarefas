@@ -59,6 +59,7 @@
 - ✅ **CA2 – Listar:** ver a lista única do dia.
 - ✅ **CA3 – Concluir:** marcar tarefa como feita (some da lista ativa ou fica riscada).
 - ✅ **CA4 – Filtrar:** filtrar por área (Trabalho / Casa / Comunidade / Pessoal).
+- ✅ **CA5 – Acessar:** entrar com e-mail e senha ou criar uma conta para salvar os dados no banco.
 
 > Sem prioridade ou recorrência na V1. O agendamento de data e horário é opcional.
 
@@ -76,14 +77,15 @@
 | **Listar** | Lista única, incluindo tarefas agendadas |
 | **Concluir** | Marcar como feita (riscada ou some) |
 | **Filtrar** | Por área (opcional, um clique) |
-| **Persistir** | Salvar no navegador (LocalStorage) |
+| **Acessar** | Login e cadastro com senha protegida |
+| **Persistir** | Salvar contas, tarefas e interações em banco SQLite |
 
 ### 🚫 Fora do escopo (nem pensar agora)
 
 - Prioridade, recorrência
-- Notificações, login, nuvem
-- Subtarefas, anexos, histórico
-- Multiusuário, gamificação
+- Notificações, sincronização em nuvem
+- Subtarefas, anexos
+- Gamificação
 - App nativo
 
 ### 📌 Regras simples
@@ -91,7 +93,8 @@
 - **4 áreas fixas:** Trabalho, Casa, Comunidade, Pessoal.
 - **Tarefa concluída** = riscada (ou escondida — você decide).
 - **Agendamento:** opcional; tarefas com data e horário aparecem na lista ordenadas pelo horário programado.
-- **Sem login:** dados no próprio navegador.
+- **Login obrigatório:** cada pessoa acessa somente as próprias tarefas.
+- **Banco de dados:** usuários, tarefas, sessões e ações são registrados no SQLite.
 
 ---
 
@@ -108,7 +111,7 @@
 | M2 | **Listar tarefas do dia** | É a resposta à dor principal: "o que fazer hoje?". |
 | M3 | **Marcar tarefa como concluída** | Fecha o ciclo de uso e gera sensação de progresso. |
 | M4 | **4 áreas fixas** (Trabalho, Casa, Comunidade, Pessoal) | A separação por contexto é parte da dor da persona. |
-| M5 | **Persistência local** (LocalStorage) | Sem salvar, a lista some ao fechar — inutilizável. |
+| M5 | **Persistência no SQLite** | Mantém os dados da conta entre sessões. |
 | M6 | **Excluir tarefa** | Erro de digitação ou tarefa cancelada precisa sair da lista. |
 | M7 | **Agendar tarefa** (data e horário opcionais) | Ajuda a organizar tarefas para outro dia sem perder a visão da lista. |
 
@@ -136,8 +139,6 @@
 
 | # | Funcionalidade | Motivo de exclusão |
 |---|---|---|
-| W1 | Login / multiusuário | Uso individual; adiciona fricção. |
-| W2 | Sincronização em nuvem | LocalStorage resolve a V1. |
 | W3 | Notificações push | Fora do escopo "abrir e ver". |
 | W4 | Subtarefas / checklists | Complexidade desnecessária agora. |
 | W5 | Integração com calendário | Dependência externa. |
@@ -154,7 +155,7 @@
 MUST     ██████████████████  (7 itens)  ← MVP
 SHOULD   ████████          (4 itens)  ← V1.1
 COULD    █████             (4 itens)  ← se sobrar
-WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não agora
+WON'T    ░░░░░░░░░░░░░░░░  (6 itens)  ← não agora
 ```
 
 ### Contagem
@@ -164,8 +165,8 @@ WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não a
 | Must Have | 7 |
 | Should Have | 4 |
 | Could Have | 4 |
-| Won't Have | 8 |
-| **Total** | **23** |
+| Won't Have | 6 |
+| **Total** | **21** |
 
 ---
 
@@ -181,7 +182,7 @@ WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não a
 ### Decisões pendentes
 
 - [x] **Stack tecnológica** — HTML, CSS e JavaScript puro.
-- [ ] **Modelo de dados** — o que guardar de cada tarefa.
+- [x] **Modelo de dados** — usuários, sessões, tarefas e histórico de interações no SQLite.
 - [ ] **Wireframe** — layout da tela única.
 - [ ] **Comportamento ao concluir** — riscar ou esconder?
 
@@ -189,16 +190,18 @@ WON'T    ░░░░░░░░░░░░░░░░  (8 itens)  ← não a
 
 1. Definir modelo de dados.
 2. Desenhar wireframe da tela única.
-3. Escolher stack e iniciar Sprint 1 (MVP).
+3. Executar `npm.cmd start` no Windows e testar o fluxo no navegador.
 
 ---
 
 ## 7. Estrutura atual do projeto
 
-O front-end usa HTML, CSS e JavaScript puro, sem dependências ou etapa de compilação. Os arquivos estão organizados assim:
+O sistema usa HTML, CSS e JavaScript puro, sem dependências externas. O servidor Node.js está organizado no padrão MVC: `models` acessam o banco SQLite, `controllers` validam e executam as operações, `routes` encaminham as rotas da API e `views` entrega as páginas HTML e os arquivos estáticos.
 
 ```text
 index.html
+server.js
+package.json
 pages/
 └── details.html
 assets/
@@ -206,8 +209,30 @@ assets/
 │   ├── details.css
 │   └── styles.css
 └── js/
+    ├── auth.js
     ├── app.js
     └── details.js
+src/
+├── config/
+│   └── database.js
+├── controllers/
+│   ├── authController.js
+│   └── taskController.js
+├── models/
+│   ├── interactionModel.js
+│   ├── sessionModel.js
+│   ├── taskModel.js
+│   └── userModel.js
+├── routes/
+│   └── apiRoutes.js
+├── utils/
+│   └── http.js
+└── views/
+    └── staticController.js
+tests/
+└── server.test.js
 ```
 
-Para executar, abra `index.html` em um navegador. A página inicial permite gerenciar as tarefas; o link **Ver detalhes** abre `pages/details.html`, com histórico, filtros de período e categoria e gráficos. As tarefas são armazenadas no `localStorage` do próprio navegador.
+Use Node.js 22.5 ou superior. No Windows, inicie o servidor com `npm.cmd start` (ou `node server.js`); nos demais ambientes, use `npm start`. Abra `http://localhost:3000` no navegador. A tela de cadastro é separada da tela de login; após criar a conta, entre com seu e-mail e senha. Não abra os arquivos HTML diretamente: autenticação e tarefas dependem do servidor.
+
+O arquivo `data/meu-dia.sqlite` é criado automaticamente e guarda usuários, sessões, tarefas e o registro de ações. No primeiro cadastro, tarefas antigas salvas no navegador são importadas para a nova conta. Cada conta acessa somente as próprias tarefas. Senhas são armazenadas com derivação criptográfica e as sessões usam cookies `HttpOnly`. Faça cópias de segurança do diretório `data` para preservar os registros.

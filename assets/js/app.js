@@ -1,5 +1,4 @@
 (() => {
-      const STORAGE_KEY = "meu-dia-tarefas-v1";
       const AREAS = ["Trabalho", "Casa", "Comunidade", "Pessoal"];
       const form = document.getElementById("task-form");
       const titleInput = document.getElementById("task-title");
@@ -86,29 +85,13 @@
         notice.dataset.kind = kind;
       }
 
-      function saveTasks() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-          showNotice("Alterações salvas neste dispositivo.", "success");
-        } catch (error) {
-          console.error("Não foi possível salvar as tarefas no navegador.", error);
-          showNotice("Não foi possível salvar. Verifique o espaço disponível e as permissões do navegador.", "error");
+      async function loadTasks() {
+        const { tasks: savedTasks } = await window.apiFetch("/api/tasks");
+        if (!Array.isArray(savedTasks) || !savedTasks.every(isValidTask)) {
+          throw new Error("O servidor retornou tarefas em um formato inválido.");
         }
-      }
-
-      function loadTasks() {
-        try {
-          const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored === null) return;
-          const parsed = JSON.parse(stored);
-          if (!Array.isArray(parsed) || !parsed.every(isValidTask)) {
-            throw new Error("Os dados salvos não correspondem ao formato esperado.");
-          }
-          tasks = parsed;
-        } catch (error) {
-          console.error("Não foi possível carregar as tarefas salvas.", error);
-          showNotice("Não foi possível carregar os dados salvos. As tarefas atuais não foram recuperadas.", "error");
-        }
+        tasks = savedTasks;
+        render();
       }
 
       function render() {
@@ -143,11 +126,22 @@
           checkbox.type = "checkbox";
           checkbox.checked = task.completed;
           checkbox.setAttribute("aria-label", `${task.completed ? "Reabrir" : "Concluir"} tarefa: ${task.title}`);
-          checkbox.addEventListener("change", () => {
-            task.completed = checkbox.checked;
-            task.completedAt = task.completed ? new Date().toISOString() : null;
-            saveTasks();
-            render();
+          checkbox.addEventListener("change", async () => {
+            checkbox.disabled = true;
+            try {
+              const { completedAt } = await window.apiFetch(`/api/tasks/${task.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({ completed: checkbox.checked })
+              });
+              task.completed = checkbox.checked;
+              task.completedAt = completedAt;
+              showNotice("Alterações salvas no banco de dados.", "success");
+              render();
+            } catch (error) {
+              checkbox.checked = task.completed;
+              showNotice(error.message, "error");
+              checkbox.disabled = false;
+            }
           });
 
           const title = document.createElement("span");
@@ -175,10 +169,20 @@
           remove.type = "button";
           remove.setAttribute("aria-label", `Excluir tarefa: ${task.title}`);
           remove.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16m-10 4v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
-          remove.addEventListener("click", () => {
-            tasks = tasks.filter((item) => item.id !== task.id);
-            saveTasks();
-            render();
+          remove.addEventListener("click", async () => {
+            remove.disabled = true;
+            try {
+              await window.apiFetch(`/api/tasks/${task.id}`, {
+                method: "DELETE",
+                body: JSON.stringify({})
+              });
+              tasks = tasks.filter((item) => item.id !== task.id);
+              showNotice("Tarefa excluída.", "success");
+              render();
+            } catch (error) {
+              showNotice(error.message, "error");
+              remove.disabled = false;
+            }
           });
 
           row.append(checkbox, taskInfo, area, remove);
@@ -200,7 +204,7 @@
         }
       }
 
-      form.addEventListener("submit", (event) => {
+      form.addEventListener("submit", async (event) => {
         event.preventDefault();
         const scheduledAt = updateScheduleMinimum();
         const title = titleInput.value.trim();
@@ -214,19 +218,27 @@
           (scheduleDateInput.validationMessage ? scheduleDateInput : scheduleTimeInput).focus();
           return;
         }
-        tasks.unshift({
-          id: window.crypto && typeof window.crypto.randomUUID === "function"
-            ? window.crypto.randomUUID()
-            : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-          title,
-          area: areaInput.value,
-          scheduledAt: scheduledAt ? scheduledAt.toISOString() : null,
-          completed: false
-        });
-        saveTasks();
-        render();
-        form.reset();
-        titleInput.focus();
+        const button = form.querySelector('button[type="submit"]');
+        button.disabled = true;
+        try {
+          const { task } = await window.apiFetch("/api/tasks", {
+            method: "POST",
+            body: JSON.stringify({
+              title,
+              area: areaInput.value,
+              scheduledAt: scheduledAt ? scheduledAt.toISOString() : null
+            })
+          });
+          tasks.unshift(task);
+          showNotice("Tarefa salva no banco de dados.", "success");
+          render();
+          form.reset();
+          titleInput.focus();
+        } catch (error) {
+          showNotice(error.message, "error");
+        } finally {
+          button.disabled = false;
+        }
       });
 
       document.getElementById("filters").addEventListener("click", (event) => {
@@ -252,6 +264,13 @@
         weekday: "short", day: "numeric", month: "long", year: "numeric"
       }).format(today).replace(".", "");
 
-      loadTasks();
-      render();
+      window.addEventListener("auth:ready", (event) => {
+        loadTasks()
+          .then(() => {
+            if (event.detail.importedTasks) {
+              showNotice(`${event.detail.importedTasks} ${event.detail.importedTasks === 1 ? "tarefa antiga importada" : "tarefas antigas importadas"} para sua conta.`, "success");
+            }
+          })
+          .catch((error) => showNotice(error.message, "error"));
+      });
     })();

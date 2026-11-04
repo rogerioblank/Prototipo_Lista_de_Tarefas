@@ -40,6 +40,10 @@
     }
 
     .brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 720; letter-spacing: -.3px; }
+    .account-controls { display: flex; align-items: center; gap: 14px; }
+    .user-label { color: #536254; font-size: 12px; font-weight: 650; }
+    .logout-button { padding: 8px 11px; color: var(--green-dark); background: var(--green-soft); border: 0; border-radius: 8px; font-size: 11px; font-weight: 650; cursor: pointer; }
+    .logout-button:hover { background: #e1eee3; }
     .brand-mark {
       width: 34px;
       height: 34px;
@@ -163,12 +167,26 @@
     .notice { min-height: 18px; margin: 12px 0 0; color: #667366; font-size: 11px; }
     .notice[data-kind="error"] { color: #b34e4e; }
     .notice[data-kind="success"] { color: var(--green); }
+    .auth-shell { width: min(100% - 32px, 460px); padding-top: 72px; }
+    .auth-panel { padding: 32px; }
+    .auth-panel h1 { font-size: clamp(28px, 5vw, 36px); }
+    .auth-panel .subtitle { margin-bottom: 24px; }
+    .auth-form { display: grid; gap: 15px; }
+    .auth-submit { width: 100%; margin-top: 2px; }
+    .auth-switch { margin: 0; color: var(--muted); text-align: center; font-size: 12px; }
+    .text-button { padding: 0; color: var(--green-dark); background: none; border: 0; font-size: inherit; font-weight: 680; text-decoration: underline; cursor: pointer; }
+    .auth-notice { min-height: 18px; margin: 15px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+    .auth-notice[data-kind="error"] { color: #b34e4e; }
+    .auth-notice[data-kind="success"] { color: var(--green); }
     .footer-note { margin: 17px 0 0; color: #9ba198; text-align: center; font-size: 11px; }
     button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(78, 142, 96, .3); outline-offset: 2px; }
 
     @media (max-width: 640px) {
       .topbar { height: 62px; padding: 0 20px; }
       .saved-label { font-size: 0; gap: 0; }
+      .account-controls { gap: 8px; }
+      .user-label { max-width: 90px; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+      .logout-button { padding: 7px 9px; font-size: 10px; }
       .saved-dot { width: 8px; height: 8px; }
       main { width: min(100% - 32px, 520px); padding: 38px 0 48px; }
       .page-heading { align-items: flex-start; flex-direction: column; gap: 15px; margin-bottom: 22px; }
@@ -192,6 +210,8 @@
       .task-title { font-size: 12px; }
       .area-tag { padding: 5px 7px; font-size: 9px; }
       .delete-button { width: 30px; }
+      .auth-shell { padding-top: 42px; }
+      .auth-panel { padding: 24px 20px; }
     }
 
     @media (max-width: 380px) {

@@ -1,0 +1,14 @@
+{
+  "name": "meu-dia-tarefas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplicativo de tarefas com autenticação e banco SQLite",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check src/config/database.js && node --check src/controllers/authController.js && node --check src/controllers/taskController.js && node --check src/models/interactionModel.js && node --check src/models/sessionModel.js && node --check src/models/taskModel.js && node --check src/models/userModel.js && node --check src/routes/apiRoutes.js && node --check src/utils/http.js && node --check src/views/staticController.js && node --check assets/js/auth.js && node --check assets/js/app.js && node --check assets/js/details.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

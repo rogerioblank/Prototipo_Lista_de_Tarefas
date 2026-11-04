@@ -1,5 +1,4 @@
 (() => {
-  const STORAGE_KEY = "meu-dia-tarefas-v1";
   const AREAS = ["Trabalho", "Casa", "Comunidade", "Pessoal"];
   const periodFilter = document.getElementById("period-filter");
   const categoryFilter = document.getElementById("category-filter");
@@ -14,23 +13,6 @@
       (typeof task.scheduledAt === "string" && Number.isFinite(Date.parse(task.scheduledAt)))) &&
     (task.completedAt === undefined || task.completedAt === null ||
       (typeof task.completedAt === "string" && Number.isFinite(Date.parse(task.completedAt))));
-
-  function loadCompletedTasks() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === null) return [];
-      const tasks = JSON.parse(stored);
-      if (!Array.isArray(tasks) || !tasks.every(isValidTask)) {
-        throw new Error("Os dados salvos não correspondem ao formato esperado.");
-      }
-      return tasks.filter((task) => task.completed);
-    } catch (error) {
-      console.error("Não foi possível carregar o histórico de tarefas.", error);
-      historyNotice.textContent = "Não foi possível carregar os dados salvos. Verifique o armazenamento do navegador.";
-      historyNotice.hidden = false;
-      return [];
-    }
-  }
 
   function getPeriodStart(period, now) {
     if (period === "all") return null;
@@ -218,10 +200,10 @@
     document.getElementById("history-empty").hidden = !empty;
   }
 
-  function render() {
+  function render(completedTasks) {
     const now = new Date();
     const period = periodFilter.value;
-    const tasks = getFilteredTasks(loadCompletedTasks(), now);
+    const tasks = getFilteredTasks(completedTasks, now);
     const categories = new Set(tasks.map((task) => task.area));
     const labels = { "7": "Nos últimos 7 dias", "30": "Nos últimos 30 dias", "90": "Nos últimos 90 dias", all: "Em todo o período" };
     document.getElementById("completed-total").textContent = String(tasks.length);
@@ -233,10 +215,24 @@
     renderCompletedList(tasks);
   }
 
-  periodFilter.addEventListener("change", render);
-  categoryFilter.addEventListener("change", render);
-  window.addEventListener("storage", (event) => {
-    if (event.key === STORAGE_KEY || event.key === null) render();
-  });
-  render();
+  async function loadHistory(event) {
+    try {
+      const { tasks } = await window.apiFetch("/api/tasks");
+      if (!Array.isArray(tasks) || !tasks.every(isValidTask)) {
+        throw new Error("O servidor retornou tarefas em um formato inválido.");
+      }
+      historyNotice.hidden = true;
+      render(tasks.filter((task) => task.completed));
+      if (event?.detail.importedTasks) {
+        historyNotice.textContent = `${event.detail.importedTasks} tarefas antigas foram importadas para sua conta.`;
+        historyNotice.hidden = false;
+      }
+    } catch (error) {
+      historyNotice.textContent = error.message;
+      historyNotice.hidden = false;
+    }
+  }
+  periodFilter.addEventListener("change", loadHistory);
+  categoryFilter.addEventListener("change", loadHistory);
+  window.addEventListener("auth:ready", loadHistory);
 })();

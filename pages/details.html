@@ -17,10 +17,56 @@
       </span>
       <span>Meu dia</span>
     </a>
-    <a class="back-link" href="../index.html">Voltar às tarefas</a>
+    <div class="account-controls">
+      <a class="back-link" href="../index.html">Voltar às tarefas</a>
+      <span class="user-label" id="user-label" hidden></span>
+      <button class="logout-button" id="logout-button" type="button" hidden>Sair</button>
+    </div>
   </header>
 
-  <main>
+  <main class="auth-shell" id="auth-screen" hidden>
+    <section class="panel auth-panel" id="login-screen" aria-labelledby="login-title">
+      <p class="eyebrow">Organize seu dia</p>
+      <h1 id="login-title">Acesse sua conta</h1>
+      <p class="subtitle">Entre com seu e-mail e senha para acessar seu histórico.</p>
+      <form class="auth-form" id="login-form">
+        <label class="form-field" for="login-email">
+          <span>E-mail</span>
+          <input class="field" id="login-email" type="email" autocomplete="email" maxlength="254" required>
+        </label>
+        <label class="form-field" for="login-password">
+          <span>Senha</span>
+          <input class="field" id="login-password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="add-button auth-submit" type="submit">Entrar</button>
+        <p class="auth-switch">Ainda não tem acesso? <button class="text-button" id="show-register" type="button">Criar cadastro</button></p>
+      </form>
+    </section>
+    <section class="panel auth-panel" id="register-screen" aria-labelledby="register-title" hidden>
+      <p class="eyebrow">É rápido e fácil</p>
+      <h1 id="register-title">Criar cadastro</h1>
+      <p class="subtitle">Preencha seus dados. Depois, volte para a tela de login para entrar.</p>
+      <form class="auth-form" id="register-form">
+        <label class="form-field" for="register-name">
+          <span>Nome</span>
+          <input class="field" id="register-name" type="text" autocomplete="name" maxlength="80" minlength="2" required>
+        </label>
+        <label class="form-field" for="register-email">
+          <span>E-mail</span>
+          <input class="field" id="register-email" type="email" autocomplete="email" maxlength="254" required>
+        </label>
+        <label class="form-field" for="register-password">
+          <span>Senha (mínimo de 8 caracteres)</span>
+          <input class="field" id="register-password" type="password" autocomplete="new-password" minlength="8" maxlength="200" required>
+        </label>
+        <button class="add-button auth-submit" type="submit">Criar conta</button>
+        <p class="auth-switch">Já tem cadastro? <button class="text-button" id="show-login" type="button">Entrar</button></p>
+      </form>
+    </section>
+    <p class="auth-notice" id="auth-notice" role="status" aria-live="polite"></p>
+  </main>
+
+  <main id="app-content" hidden>
     <section class="page-heading" aria-labelledby="page-title">
       <div>
         <p class="eyebrow">Seu caminho, em perspectiva</p>
@@ -121,7 +167,8 @@
         <p>Experimente ampliar o período ou escolher outra categoria.</p>
       </div>
     </section>
-    <p class="footer-note">O histórico é lido das tarefas salvas neste navegador.</p>
+    <p class="footer-note">O histórico é carregado do banco de dados da sua conta.</p>
   </main>
+  <script src="../assets/js/auth.js" defer></script>
 </body>
 </html>
