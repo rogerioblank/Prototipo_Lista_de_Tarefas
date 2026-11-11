@@ -9,6 +9,8 @@ const MIME_TYPES = {
   ".svg": "image/svg+xml"
 };
 const PUBLIC_FILES = new Set(["/index.html"]);
+const PUBLIC_DIRS = [path.join(ROOT, "assets"), path.join(ROOT, "pages")];
+const INDEX_FILE = path.join(ROOT, "index.html");
 
 function respondError(response, status, message) {
   response.writeHead(status, {
@@ -38,7 +40,9 @@ function serveStatic(request, response, url) {
   }
 
   const filePath = path.resolve(ROOT, `.${pathname}`);
-  if (!filePath.startsWith(`${ROOT}${path.sep}`)) {
+  const insidePublicArea = filePath === INDEX_FILE ||
+    PUBLIC_DIRS.some((dir) => filePath.startsWith(`${dir}${path.sep}`));
+  if (!insidePublicArea) {
     respondError(response, 403, "Acesso negado.");
     return;
   }
