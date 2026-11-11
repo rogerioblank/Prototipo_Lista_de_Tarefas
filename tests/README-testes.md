@@ -38,7 +38,7 @@ Se já houver um Chromium na máquina, aponte para ele com
 | `models.test.js` | `src/models/*` | CRUD, ordenação, isolamento por usuário, sessão expirada, `ROLLBACK` no cadastro duplicado, `ON DELETE CASCADE` |
 | `authController.test.js` | `authController` | validação de cadastro (18 casos), hash scrypt + salt, normalização de e-mail, cookie `HttpOnly/SameSite/Secure`, token só como hash, login sem enumeração de contas, logout idempotente |
 | `taskController.test.js` | `taskController` | validação de título/área/data, trim, limite de 120, agendamento futuro, `completed` booleano, tarefa de outro usuário → 404, trilha de interações |
-| `staticController.test.js` | `staticController` | MIME, HEAD, lista de arquivos públicos, 404/400, **path traversal** |
+| `staticController.test.js` | `staticController` | MIME, HEAD, lista de arquivos públicos, 404/400, **path traversal** (regressão do bug corrigido) |
 
 ### 2. Integração / API — `tests/integration/`
 Sobe o `server.js` real em porta livre e fala HTTP de verdade.
@@ -56,28 +56,52 @@ Cobre a persona e os critérios de aceitação do Readme:
 - Migração do `localStorage` antigo no cadastro (e `localStorage` corrompido).
 - XSS (título com `<img onerror>`), mobile 375×667 sem rolagem horizontal, rótulos/ARIA.
 
-## ⚠️ Resultado atual: 8 testes falham de propósito (bug real encontrado)
+## ✅ Resultado atual: todos os testes passam
 
-Todos os testes `SEGURANÇA: … path traversal …` (4 em unidade + 4 em integração)
-**falham** porque o projeto tem uma vulnerabilidade de *path traversal* em
+| Camada | Testes | Resultado |
+|---|---|---|
+| Unidade | 100 | 100 ✔ |
+| Integração / API | 57 | 57 ✔ |
+| E2E / UI | 29 | 29 ✔ |
+| Teste legado (`tests/server.test.js`) | 1 | 1 ✔ |
+
+### Bug encontrado e corrigido: path traversal no servidor estático
+
+Os testes `SEGURANÇA: … path traversal …` (4 em unidade + 4 em integração)
+falhavam na primeira execução e revelaram uma vulnerabilidade em
 `src/views/staticController.js`:
 
 ```
-GET /assets/..%2fserver.js                      → 200 (devolve o código-fonte do servidor)
-GET /assets/..%2fsrc/config/database.js         → 200
+GET /assets/..%2fserver.js                        → 200 (devolvia o código-fonte)
+GET /assets/..%2fsrc/config/database.js           → 200
 GET /pages/..%2fsrc/controllers/authController.js → 200
 ```
 
-O `%2f` não é normalizado pelo parser de URL, mas o controller o decodifica
-(`decodeURIComponent`) *depois* de checar o prefixo `/assets/` ou `/pages/`; o
-caminho então resolve para fora da pasta pública, ainda dentro de `ROOT`
-(passa na checagem `startsWith(ROOT)`). Arquivos `.js/.html/.css/.svg` de
-qualquer pasta ficam expostos (a lista `PUBLIC_FILES`/prefixos não vale mais).
+**Causa:** o `%2f` não é normalizado pelo parser de URL, mas o controller o
+decodifica (`decodeURIComponent`) *depois* de checar o prefixo `/assets/` ou
+`/pages/`. O caminho resolvia para fora da pasta pública, mas ainda dentro de
+`ROOT`, e passava na checagem `startsWith(ROOT)`. Qualquer `.js`, `.html`,
+`.css` ou `.svg` do projeto ficava exposto.
 
-**Correção sugerida:** depois de resolver `filePath`, exigir que ele esteja
-dentro de uma das pastas públicas (`ROOT/assets`, `ROOT/pages`) ou seja
-exatamente `ROOT/index.html`, em vez de apenas dentro de `ROOT`.
-Quando corrigido, os 8 testes passam sem alteração.
+**Correção aplicada:** depois de resolver o caminho real do arquivo, ele
+precisa estar dentro de `assets/`, dentro de `pages/` ou ser exatamente o
+`index.html`; caso contrário a resposta é 403.
+
+```js
+const PUBLIC_DIRS = [path.join(ROOT, "assets"), path.join(ROOT, "pages")];
+const INDEX_FILE = path.join(ROOT, "index.html");
+
+// ... depois de: const filePath = path.resolve(ROOT, `.${pathname}`);
+const insidePublicArea = filePath === INDEX_FILE ||
+  PUBLIC_DIRS.some((dir) => filePath.startsWith(`${dir}${path.sep}`));
+if (!insidePublicArea) {
+  respondError(response, 403, "Acesso negado.");
+  return;
+}
+```
+
+Os testes de path traversal ficam na suíte como **testes de regressão**: se
+alguém reintroduzir o problema, eles voltam a falhar.
 
 ## Observações adicionais (não são falhas)
 - Mensagem de erro de agendamento: o formulário usa `setCustomValidity`, então o
